@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Validation\Rule;
 
 class StoreProdukRequest extends FormRequest
 {
@@ -23,13 +24,34 @@ class StoreProdukRequest extends FormRequest
      */
     public function rules(): array
     {
+        if ($this->isMethod('post') && !$this->has('_method') ) {
+
         return [
             'kode_barang' => 'required|string|unique:produks,kode_barang',
             'nama_barang' => 'required|string|max:255',
             'harga' => 'required|numeric|min:0',
             'deskripsi' => 'nullable|string',
             'stok' => 'required|numeric|min:0',
-            'gambar' => 'nullable|string',
+            // 'gambar' => 'nullable|string',
+            'gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'kategori' => 'required|string',
+            'expiredDate' => 'nullable|date',
+            'rating' => 'nullable|numeric|min:0|max:5',
+        ];
+    }
+
+        return [
+            'kode_barang' => [
+                    'sometimes',
+                    'string',
+                    Rule::unique('produks', 'kode_barang')->ignore($this->route('produk'))
+                ],
+            'nama_barang' => 'required|string|max:255',
+            'harga' => 'required|numeric|min:0',
+            'deskripsi' => 'nullable|string',
+            'stok' => 'required|numeric|min:0',
+            // 'gambar' => 'nullable|string',
+            'gambar' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'kategori' => 'required|string',
             'expiredDate' => 'nullable|date',
             'rating' => 'nullable|numeric|min:0|max:5',
